@@ -3,41 +3,58 @@ package com.anish.screen;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 
-import com.anish.calabashbros.BubbleSorter;
-import com.anish.calabashbros.Calabash;
-import com.anish.calabashbros.World;
+import com.anish.monsters.SelectSorter;
+import com.anish.monsters.Monster;
+import com.anish.monsters.RandomArray;
+import com.anish.monsters.World;
 
 import asciiPanel.AsciiPanel;
 
 public class WorldScreen implements Screen {
 
     private World world;
-    private Calabash[] bros;
+    private Monster[][] mons;
     String[] sortSteps;
 
     public WorldScreen() {
         world = new World();
 
-        bros = new Calabash[7];
+        mons = new Monster[16][16];
 
-        bros[3] = new Calabash(new Color(204, 0, 0), 1, world);
-        bros[5] = new Calabash(new Color(255, 165, 0), 2, world);
-        bros[1] = new Calabash(new Color(252, 233, 79), 3, world);
-        bros[0] = new Calabash(new Color(78, 154, 6), 4, world);
-        bros[4] = new Calabash(new Color(50, 175, 255), 5, world);
-        bros[6] = new Calabash(new Color(114, 159, 207), 6, world);
-        bros[2] = new Calabash(new Color(173, 127, 168), 7, world);
+        RandomArray ra = new RandomArray(256);
 
-        world.put(bros[0], 10, 10);
-        world.put(bros[1], 12, 10);
-        world.put(bros[2], 14, 10);
-        world.put(bros[3], 16, 10);
-        world.put(bros[4], 18, 10);
-        world.put(bros[5], 20, 10);
-        world.put(bros[6], 22, 10);
+        for(int i = 0; i < 16; ++i) {
+            for(int j = 0; j < 16; ++j) {
+                int rank = ra.get(i * 16 + j);
+                if(rank <= 43) {
+                    mons[i][j] = new Monster(new Color(252, (rank - 1) * 6, 0), rank, world);
+                }
+                else if(rank <= 85) {
+                    mons[i][j] = new Monster(new Color(510 - 6 * rank, 252, 0), rank, world);
+                }
+                else if(rank <= 127) {
+                    mons[i][j] = new Monster(new Color(0, 252, (rank - 85) * 6), rank, world);
+                }
+                else if(rank <= 169) {
+                    mons[i][j] = new Monster(new Color(0, 1014 - 6 * rank, 252), rank, world);
+                }
+                else if(rank <= 211) {
+                    mons[i][j] = new Monster(new Color((rank - 169) * 6, 0, 252), rank, world);
+                }
+                else {
+                    mons[i][j] = new Monster(new Color(252, (rank - 211) * 5, 252), rank, world);
+                }
+            }
+        }
 
-        BubbleSorter<Calabash> b = new BubbleSorter<>();
-        b.load(bros);
+        for(int i = 0; i < 16; ++i) {
+            for(int j = 0; j < 16; ++j) {
+                world.put(mons[i][j], 10 + 2 * j, 10 + 2 * i);
+            }
+        }
+
+        SelectSorter<Monster> b = new SelectSorter<>();
+        b.load(mons);
         b.sort();
 
         sortSteps = this.parsePlan(b.getPlan());
@@ -47,15 +64,17 @@ public class WorldScreen implements Screen {
         return plan.split("\n");
     }
 
-    private void execute(Calabash[] bros, String step) {
+    private void execute(Monster[][] monsters, String step) {
         String[] couple = step.split("<->");
-        getBroByRank(bros, Integer.parseInt(couple[0])).swap(getBroByRank(bros, Integer.parseInt(couple[1])));
+        getMonByRank(mons, Integer.parseInt(couple[0])).swap(getMonByRank(mons, Integer.parseInt(couple[1])));
     }
 
-    private Calabash getBroByRank(Calabash[] bros, int rank) {
-        for (Calabash bro : bros) {
-            if (bro.getRank() == rank) {
-                return bro;
+    private Monster getMonByRank(Monster[][] monsters, int rank) {
+        for(int i = 0; i < monsters.length; ++i) {
+            for(int j = 0; j < monsters[0].length; ++j) {
+                if(monsters[i][j].getRank() == rank) {
+                    return monsters[i][j];
+                }
             }
         }
         return null;
@@ -73,14 +92,14 @@ public class WorldScreen implements Screen {
         }
     }
 
-    int i = 0;
+    int k = 0;
 
     @Override
     public Screen respondToUserInput(KeyEvent key) {
 
-        if (i < this.sortSteps.length) {
-            this.execute(bros, sortSteps[i]);
-            i++;
+        if (k < this.sortSteps.length) {
+            this.execute(mons, sortSteps[k]);
+            k++;
         }
 
         return this;
