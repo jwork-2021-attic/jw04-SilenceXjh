@@ -1,11 +1,15 @@
 package com.anish.calabashbros;
 
+import com.anish.maze.MazeGenerator;
+
 public class World {
 
-    public static final int WIDTH = 40;
-    public static final int HEIGHT = 20;
+    public static final int WIDTH = 30;
+    public static final int HEIGHT = 30;
 
     private Tile<Thing>[][] tiles;
+
+    private int[][] maze;
 
     public World() {
 
@@ -13,10 +17,19 @@ public class World {
             tiles = new Tile[WIDTH][HEIGHT];
         }
 
+        MazeGenerator mazeGenerator = new MazeGenerator(WIDTH);
+        mazeGenerator.generateMaze();
+        maze = mazeGenerator.getMaze();
+
         for (int i = 0; i < WIDTH; i++) {
             for (int j = 0; j < HEIGHT; j++) {
                 tiles[i][j] = new Tile<>(i, j);
-                tiles[i][j].setThing(new Floor(this));
+                if(maze[i][j] == 0) {
+                    tiles[i][j].setThing(new Wall(this));
+                }
+                else {
+                    tiles[i][j].setThing(new Floor(this));
+                }
             }
         }
     }
