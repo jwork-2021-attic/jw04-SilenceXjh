@@ -3,8 +3,6 @@ package com.anish.screen;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 
-import com.anish.calabashbros.Calabash;
-import com.anish.calabashbros.World;
 import com.anish.calabashbros.*;
 
 import asciiPanel.AsciiPanel;
@@ -13,7 +11,6 @@ public class WorldScreen implements Screen {
 
     private World world;
     private Calabash bro;
-    String[] sortSteps;
 
     public WorldScreen() {
         world = new World();
@@ -34,8 +31,6 @@ public class WorldScreen implements Screen {
             }
         }
     }
-
-    int i = 0;
 
     @Override
     public Screen respondToUserInput(KeyEvent key) {
