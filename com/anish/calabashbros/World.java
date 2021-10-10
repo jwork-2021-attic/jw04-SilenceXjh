@@ -42,4 +42,8 @@ public class World {
         this.tiles[x][y].setThing(t);
     }
 
+    public int[][] getMaze() {
+        return maze;
+    }
+
 }

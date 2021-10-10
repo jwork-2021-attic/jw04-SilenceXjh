@@ -3,8 +3,6 @@ package com.anish.screen;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 
-import com.anish.calabashbros.Calabash;
-import com.anish.calabashbros.World;
 import com.anish.calabashbros.*;
 
 import asciiPanel.AsciiPanel;
@@ -13,7 +11,7 @@ public class WorldScreen implements Screen {
 
     private World world;
     private Calabash bro;
-    String[] sortSteps;
+    String[] paths;
 
     public WorldScreen() {
         world = new World();
@@ -21,6 +19,13 @@ public class WorldScreen implements Screen {
         bro = new Calabash(new Color(204, 0, 0), 1, world);
 
         world.put(bro, 0, 0);
+
+        Dfs dfs = new Dfs();
+        dfs.load(world.getMaze());
+        dfs.start(0, 0);
+
+        String plan = dfs.getPlan();
+        paths = plan.split("\n");
     }
 
     @Override
@@ -35,50 +40,19 @@ public class WorldScreen implements Screen {
         }
     }
 
-    int i = 0;
+    private int i = 1;
 
     @Override
     public Screen respondToUserInput(KeyEvent key) {
 
-        if(bro.getX() == World.WIDTH-1 && bro.getY() == World.HEIGHT-1) {
-            return this;
-        }
-
-        if(key.getKeyCode() == KeyEvent.VK_DOWN) {
-            int newX = bro.getX();
-            int newY = bro.getY() + 1;
-            if(newY < World.HEIGHT && world.get(newX, newY).getClass() == Floor.class) {
-                Thing t = world.get(newX, newY);
-                world.put(t, bro.getX(), bro.getY());
-                bro.moveTo(newX, newY);
-            }
-        }
-        else if(key.getKeyCode() == KeyEvent.VK_UP) {
-            int newX = bro.getX();
-            int newY = bro.getY() - 1;
-            if(newY >= 0 && world.get(newX, newY).getClass() == Floor.class) {
-                Thing t = world.get(newX, newY);
-                world.put(t, bro.getX(), bro.getY());
-                bro.moveTo(newX, newY);
-            }
-        }
-        else if(key.getKeyCode() == KeyEvent.VK_LEFT) {
-            int newX = bro.getX() - 1;
-            int newY = bro.getY();
-            if(newX >= 0 && world.get(newX, newY).getClass() == Floor.class) {
-                Thing t = world.get(newX, newY);
-                world.put(t, bro.getX(), bro.getY());
-                bro.moveTo(newX, newY);
-            }
-        }
-        else if(key.getKeyCode() == KeyEvent.VK_RIGHT) {
-            int newX = bro.getX() + 1;
-            int newY = bro.getY();
-            if(newX < World.WIDTH && world.get(newX, newY).getClass() == Floor.class) {
-                Thing t = world.get(newX, newY);
-                world.put(t, bro.getX(), bro.getY());
-                bro.moveTo(newX, newY);
-            }
+        if(i < paths.length) {
+            String[] couple = paths[i].split(",");
+            int newX = Integer.parseInt(couple[0]);
+            int newY = Integer.parseInt(couple[1]);
+            Thing t = world.get(newX, newY);
+            world.put(t, bro.getX(), bro.getY());
+            bro.moveTo(newX, newY);
+            i++;
         }
 
         return this;
